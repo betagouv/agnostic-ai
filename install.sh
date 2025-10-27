@@ -104,6 +104,17 @@ echo ""
 echo "Creating .ai structure..."
 cp -r "$TEMP_DIR/templates/.ai" .
 
+# Copy .gitignore template if it exists
+if [ -f "$TEMP_DIR/templates/.gitignore" ]; then
+    if [ ! -f .gitignore ]; then
+        cp "$TEMP_DIR/templates/.gitignore" .gitignore
+    else
+        # Append template to existing .gitignore
+        cat "$TEMP_DIR/templates/.gitignore" >> .gitignore
+    fi
+    echo -e "${GREEN}✓${NC} Updated .gitignore"
+fi
+
 # Replace placeholders in all .ai files
 echo "Customizing templates with your project info..."
 
