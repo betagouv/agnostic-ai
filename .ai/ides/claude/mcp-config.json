@@ -1,0 +1,5 @@
+{
+  "location": "~/.claude.json",
+  "strategy": "merge-key",
+  "key": "mcpServers"
+}

@@ -696,9 +696,15 @@ mcp_use() {
 
                     # Check if variable exists in .env.local
                     if [ -f "$PROJECT_ROOT/.env.local" ]; then
-                        if ! grep -q "^$actual_key=" "$PROJECT_ROOT/.env.local"; then
-                            echo -e "${RED}❌ Missing environment variable: $actual_key${NC}"
-                            echo "   Add to .env.local: $actual_key=<value>"
+                        # Check if key exists and has a non-empty value
+                        local actual_value=$(grep "^$actual_key=" "$PROJECT_ROOT/.env.local" | cut -d'=' -f2-)
+
+                        if [ -z "$actual_value" ]; then
+                            echo -e "${RED}❌ Missing or empty environment variable: $actual_key${NC}"
+                            echo "   Add a value in .env.local: $actual_key=<your-value>"
+                            echo ""
+                            echo "   Example for $server_name:"
+                            echo "   $actual_key=your_actual_api_key_here"
                             exit 1
                         fi
                     else
