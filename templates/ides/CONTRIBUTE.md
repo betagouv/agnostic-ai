@@ -405,6 +405,77 @@ done
 2. Open an issue: [GitHub Issues](https://github.com/betagouv/agnostic-ai/issues)
 3. Test with `bash -x init.sh` for debug output
 
+## 🔌 MCP Configuration
+
+To support MCP (Model Context Protocol) for your IDE, create an `mcp-config.json` file:
+
+### Location
+
+`templates/.ai/ides/<your-ide>/mcp-config.json`
+
+### Format
+
+```json
+{
+  "location": "~/path/to/ide/config.json",
+  "strategy": "overwrite" | "merge-key",
+  "key": "mcpServers" (only for merge-key strategy)
+}
+```
+
+### Strategies
+
+**1. overwrite** - Replace entire file with MCP config
+
+Example (Cursor):
+```json
+{
+  "location": "~/.cursor/mcp.json",
+  "strategy": "overwrite"
+}
+```
+
+The CLI will write `{"mcpServers": {...}}` directly to the file.
+
+**2. merge-key** - Merge into existing config under a specific key
+
+Example (Claude):
+```json
+{
+  "location": "~/.claude.json",
+  "strategy": "merge-key",
+  "key": "mcpServers"
+}
+```
+
+The CLI will read the existing `~/.claude.json`, update the `mcpServers` key, and write it back.
+
+### How It Works
+
+1. User runs `.ai/cli configure` and selects your IDE
+2. Your `init.sh` runs to set up symlinks
+3. The `mcp-config.json` is copied to `.ai/ides/<your-ide>/`
+4. User runs `.ai/cli mcp use <server>`
+5. The CLI reads your `mcp-config.json` and applies the strategy
+
+**No code changes needed** - just add the JSON config!
+
+### Testing MCP Support
+
+```bash
+# Configure your IDE
+.ai/cli configure
+
+# Install MCP templates
+.ai/cli mcp install
+
+# Test MCP
+.ai/cli mcp use filesystem
+
+# Verify config was written
+cat ~/path/to/your/ide/config.json
+```
+
 ## ✅ Checklist
 
 Before submitting your IDE support:
@@ -414,8 +485,10 @@ Before submitting your IDE support:
 - [ ] User customizations are preserved in `.ai/`
 - [ ] `.gitignore` file created
 - [ ] Script is executable: `chmod +x init.sh`
+- [ ] `mcp-config.json` created with correct location and strategy
 - [ ] Tested in fresh installation
 - [ ] Tested with existing configuration
+- [ ] Tested MCP support (install, use, unuse)
 - [ ] Documentation added (README.md if needed)
 - [ ] Works on macOS and Linux
 

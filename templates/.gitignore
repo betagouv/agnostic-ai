@@ -3,3 +3,6 @@
 
 # Temporary files and backups
 .tmp/
+
+# Local IDE configuration
+.ai/config.local.jsonc
