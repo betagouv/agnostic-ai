@@ -11,13 +11,19 @@
 curl -fsSL https://raw.githubusercontent.com/betagouv/agnostic-ai/main/install.sh | bash
 
 # 2. Migrate your existing documentation (optional)
-.ai/cli migrate        # Shows instructions
+.ai/cli migrate             # Shows instructions
 
 # 3. Use commands to build features
 # In your IDE (Claude Code/Cursor):
-/core:feature-create   # Scaffold new features with EPCT methodology
-/core:command-create   # Create custom commands
-/core:agent-create     # Create specialized agents
+/core:feature-create        # Scaffold new features with EPCT methodology
+/core:command-create        # Create custom commands
+/core:agent-create          # Create specialized agents
+
+# 4. Enable MCP servers (optional - AI superpowers!)
+.ai/cli mcp install         # Install MCP templates
+.ai/cli mcp list            # See available servers (GitHub, Notion, Airtable, etc.)
+.ai/cli mcp use github      # Enable GitHub MCP server
+.ai/cli mcp unuse github    # Disable when not needed (saves tokens!)
 ```
 
 **That's it!** Your AI configuration is ready and version-controlled in `.ai/`
@@ -264,6 +270,51 @@ git push
 # Update agnostic-ai and installed plugins
 .ai/cli update
 ```
+
+### MCP Server Management
+
+```bash
+# Install MCP server templates
+.ai/cli mcp install
+
+# List available MCP servers
+.ai/cli mcp list
+
+# Enable MCP server(s) for your IDE(s)
+.ai/cli mcp use <server-name> [server-name...]
+
+# Examples
+.ai/cli mcp use github              # Enable GitHub integration
+.ai/cli mcp use notion airtable     # Enable multiple servers
+.ai/cli mcp use filesystem sqlite   # Local tools
+
+# Disable MCP server(s) - Don't forget to disable unused servers to save tokens!
+.ai/cli mcp unuse <server-name> [server-name...]
+
+# Examples
+.ai/cli mcp unuse github            # Disable GitHub when not working on PRs
+.ai/cli mcp unuse notion airtable   # Disable multiple servers
+```
+
+**💡 Tip:** Only enable MCP servers you're actively using. Each enabled server consumes tokens in every conversation, so disable them when not needed to save costs!
+
+**Available MCP Servers (14 pre-configured):**
+- **airtable** - Airtable database operations
+- **context7** - Up-to-date library documentation
+- **filesystem** - File system operations
+- **github** - GitHub API integration
+- **gmail** - Gmail search and drafts
+- **google-calendar** - Calendar management
+- **google-drive** - Drive, Sheets, and Docs access
+- **make** - Make.com scenario integration
+- **next-devtools** - Next.js development tools
+- **notion** - Notion workspace integration
+- **postgres** - PostgreSQL database access
+- **sqlite** - SQLite database access
+- **stripe** - Stripe payment processing
+- **trello** - Trello board management
+
+**Setup:** Add required API keys to `.env.local` (gitignored)
 
 ### Help
 

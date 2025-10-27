@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-10-27
+
+### Added
+
+#### Migration System
+- **Automatic Migrations**: New migration system for smooth version upgrades
+  - Migration scripts in `templates/migrations/<version>.sh`
+  - Runs automatically during `.ai/cli update`
+  - Version-aware: only runs migrations newer than current version
+  - Graceful error handling with warnings
+- **v1.2.0 Migration**: Converts `config.local.jsonc` format
+  - Migrates from array-based IDE list to nested object format
+  - Embeds MCP configurations directly into `config.local.jsonc`
+  - Creates backup of old config before migration
+  - Automatically downloads templates if needed
+
+### Changed
+
+#### MCP Configuration Architecture
+- **Unified Configuration**: MCP configs now embedded in `.ai/config.local.jsonc`
+  - Old format: `{"ides": ["claude", "cursor"]}`
+  - New format: `{"ides": {"claude": {"mcp-config": {...}}, "cursor": {...}}}`
+  - Each IDE has its MCP config embedded directly
+  - No more separate `ides/` folder for IDE-specific configs
+- **Improved Maintainability**:
+  - Single source of truth for IDE configuration
+  - Easier to version control and share
+  - Better IDE detection in CLI commands
+
+### Fixed
+
+- **Version Consistency**: Updated `templates/.ai/cli` to version 1.2.0
+  - Previously showed 1.1.0 while migration was 1.2.0
+  - Ensures version tracking is consistent across updates
+
 ## [1.1.0] - 2024-10-27
 
 ### Added
@@ -107,5 +142,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Modular plugin system
   - Easy to create custom plugins
 
+[1.2.0]: https://github.com/betagouv/agnostic-ai/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/betagouv/agnostic-ai/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/betagouv/agnostic-ai/releases/tag/v1.0.0
