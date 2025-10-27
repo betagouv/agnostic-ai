@@ -55,11 +55,9 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-postgres",
-        "postgresql://localhost/mydb"
+        ".env.POSTGRES_CONNECTION_STRING"
       ],
-      "env": {
-        "POSTGRES_CONNECTION_STRING": ".env.POSTGRES_CONNECTION_STRING"
-      }
+      "env": {}
     },
     "trello": {
       "description": "Manage Trello boards, lists, and cards",
