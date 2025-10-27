@@ -407,19 +407,48 @@ done
 
 ## 🔌 MCP Configuration
 
-To support MCP (Model Context Protocol) for your IDE, create an `mcp-config.json` file:
+To support MCP (Model Context Protocol) for your IDE, create an `mcp-config.jsonc` template file:
 
 ### Location
 
-`templates/.ai/ides/<your-ide>/mcp-config.json`
+`templates/ides/<your-ide>/mcp-config.jsonc`
 
-### Format
+**Important:**
+- Template files are stored in `templates/ides/*/mcp-config.jsonc` (committed as templates)
+- The CLI copies this content into `.ai/config.local.jsonc` under `ides.<ide-name>.mcp-config` (gitignored)
+- Do NOT store MCP configs in `.ai/ides/` - they should not be committed
 
-```json
+### Template Format
+
+Create `templates/ides/<your-ide>/mcp-config.jsonc`:
+
+```jsonc
 {
+  // Location where your IDE stores MCP server configurations
   "location": "~/path/to/ide/config.json",
+
+  // Merge strategy: overwrite or merge-key
   "strategy": "overwrite" | "merge-key",
-  "key": "mcpServers" (only for merge-key strategy)
+
+  // The key in the target file (only for merge-key strategy)
+  "key": "mcpServers"
+}
+```
+
+### User Configuration
+
+When a user runs `.ai/cli configure` and selects your IDE, the CLI will copy this template into `.ai/config.local.jsonc`:
+
+```jsonc
+{
+  "ides": {
+    "your-ide": {
+      "mcp-config": {
+        "location": "~/path/to/ide/config.json",
+        "strategy": "overwrite"
+      }
+    }
+  }
 }
 ```
 
@@ -428,9 +457,12 @@ To support MCP (Model Context Protocol) for your IDE, create an `mcp-config.json
 **1. overwrite** - Replace entire file with MCP config
 
 Example (Cursor):
-```json
+```jsonc
 {
+  // Location where Cursor stores MCP server configurations
   "location": "~/.cursor/mcp.json",
+
+  // Merge strategy: overwrite will replace the entire file
   "strategy": "overwrite"
 }
 ```
@@ -440,10 +472,15 @@ The CLI will write `{"mcpServers": {...}}` directly to the file.
 **2. merge-key** - Merge into existing config under a specific key
 
 Example (Claude):
-```json
+```jsonc
 {
+  // Location where Claude stores MCP server configurations
   "location": "~/.claude.json",
+
+  // Merge strategy: merge-key will merge new servers with existing ones
   "strategy": "merge-key",
+
+  // The key in the target file where MCP servers are stored
   "key": "mcpServers"
 }
 ```
@@ -454,11 +491,13 @@ The CLI will read the existing `~/.claude.json`, update the `mcpServers` key, an
 
 1. User runs `.ai/cli configure` and selects your IDE
 2. Your `init.sh` runs to set up symlinks
-3. The `mcp-config.json` is copied to `.ai/ides/<your-ide>/`
-4. User runs `.ai/cli mcp use <server>`
-5. The CLI reads your `mcp-config.json` and applies the strategy
+3. The CLI reads `templates/ides/<your-ide>/mcp-config.jsonc`
+4. The CLI copies the mcp-config content into `.ai/config.local.jsonc` under `ides.<your-ide>.mcp-config`
+5. User runs `.ai/cli mcp use <server>`
+6. The CLI reads `.ai/config.local.jsonc` to get the mcp-config for the IDE
+7. The strategy is applied to write MCP servers to the IDE's config file
 
-**No code changes needed** - just add the JSON config!
+**No code changes needed** - just add the JSONC template!
 
 ### Testing MCP Support
 

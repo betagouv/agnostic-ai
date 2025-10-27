@@ -1,0 +1,7 @@
+{
+  // Location where Cursor stores MCP server configurations
+  "location": "~/.cursor/mcp.json",
+
+  // Merge strategy: overwrite will replace the entire file
+  "strategy": "overwrite"
+}

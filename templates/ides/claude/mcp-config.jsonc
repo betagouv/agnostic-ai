@@ -1,0 +1,10 @@
+{
+  // Location where Claude stores MCP server configurations
+  "location": "~/.claude.json",
+
+  // Merge strategy: merge-key will merge new servers with existing ones
+  "strategy": "merge-key",
+
+  // The key in the target file where MCP servers are stored
+  "key": "mcpServers"
+}
