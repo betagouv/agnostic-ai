@@ -524,75 +524,6 @@ update() {
 # MCP Functions
 # ==============================================================================
 
-# Migrate old config.local.jsonc format to new nested format
-migrate_config_local() {
-    local config_local="$AI_ROOT/config.local.jsonc"
-
-    if [ ! -f "$config_local" ]; then
-        return
-    fi
-
-    # Check if migration is needed (old format uses array)
-    local config_json=$(grep -v '^\s*//' "$config_local" | sed 's|//.*||g')
-    local is_array=$(echo "$config_json" | jq -e '.ides | type == "array"' 2>/dev/null || echo "false")
-
-    if [ "$is_array" != "true" ]; then
-        # Already in new format or invalid
-        return
-    fi
-
-    echo -e "${BLUE}🔄 Migrating config.local.jsonc to new format...${NC}"
-
-    # Get list of IDEs from old format
-    local old_ides=($(echo "$config_json" | jq -r '.ides[]' 2>/dev/null))
-
-    if [ ${#old_ides[@]} -eq 0 ]; then
-        return
-    fi
-
-    # Get templates directory
-    local templates_dir
-    if [ -d "$PROJECT_ROOT/templates/ides" ]; then
-        templates_dir="$PROJECT_ROOT/templates/ides"
-    else
-        if [ -z "$TEMP_PLUGINS_DIR" ]; then
-            TEMP_PLUGINS_DIR=$(mktemp -d)
-            git clone --depth 1 --quiet "$REPO_URL" "$TEMP_PLUGINS_DIR" 2>/dev/null || {
-                echo -e "${YELLOW}⚠️  Could not download templates for migration${NC}"
-                return
-            }
-        fi
-        templates_dir="$TEMP_PLUGINS_DIR/templates/ides"
-    fi
-
-    # Build new config object
-    local new_config='{"ides":{}}'
-
-    for ide in "${old_ides[@]}"; do
-        local mcp_template="$templates_dir/$ide/mcp-config.jsonc"
-
-        if [ -f "$mcp_template" ]; then
-            # Read mcp-config template and embed it
-            local mcp_json=$(grep -v '^\s*//' "$mcp_template" | sed 's|//.*||g' | jq -c '.')
-            new_config=$(echo "$new_config" | jq --arg ide "$ide" --argjson mcp "$mcp_json" '.ides[$ide] = {"mcp-config": $mcp}')
-        else
-            # No mcp-config template, just add IDE name
-            new_config=$(echo "$new_config" | jq --arg ide "$ide" '.ides[$ide] = {}')
-        fi
-    done
-
-    # Write new format with comments
-    cat > "$config_local" <<EOF
-{
-  // Local IDE configuration (gitignored)
-  // Defines which IDEs are installed and configured with their MCP settings
-EOF
-    echo "  \"ides\": $(echo "$new_config" | jq -c '.ides')" >> "$config_local"
-    echo "}" >> "$config_local"
-
-    echo -e "${GREEN}✓${NC} Migrated config.local.jsonc to new format"
-}
-
 # Get configured IDEs from config.local.jsonc
 get_configured_ides() {
     local config_local="$AI_ROOT/config.local.jsonc"
@@ -601,9 +532,6 @@ get_configured_ides() {
         echo ""
         return
     fi
-
-    # Migrate if needed
-    migrate_config_local
 
     # Strip comments and parse
     local config_json=$(grep -v '^\s*//' "$config_local" | sed 's|//.*||g')
