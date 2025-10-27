@@ -428,11 +428,77 @@ EOF
     echo ""
 }
 
+# Validate and sync IDE gitignore entries
+validate_and_sync_gitignore() {
+    local ides=($(get_configured_ides))
+
+    if [ ${#ides[@]} -eq 0 ]; then
+        # No IDEs configured, skip validation
+        return 0
+    fi
+
+    echo -e "${BLUE}Validating .gitignore entries...${NC}"
+
+    local templates_dir
+    if [ -d "$PROJECT_ROOT/templates/ides" ]; then
+        templates_dir="$PROJECT_ROOT/templates/ides"
+    else
+        if [ -z "$TEMP_PLUGINS_DIR" ]; then
+            TEMP_PLUGINS_DIR=$(mktemp -d)
+            git clone --depth 1 --quiet "$REPO_URL" "$TEMP_PLUGINS_DIR" 2>/dev/null || {
+                echo -e "${YELLOW}⚠️  Could not download templates for validation${NC}"
+                return 0
+            }
+        fi
+        templates_dir="$TEMP_PLUGINS_DIR/templates/ides"
+    fi
+
+    touch "$PROJECT_ROOT/.gitignore"
+    local missing_entries=()
+
+    for ide in "${ides[@]}"; do
+        local ide_gitignore="$templates_dir/$ide/.gitignore"
+
+        if [ ! -f "$ide_gitignore" ]; then
+            continue
+        fi
+
+        # Check each line from template exists in project .gitignore
+        while IFS= read -r line; do
+            # Skip empty lines and comments
+            if [[ -n "$line" ]] && [[ ! "$line" =~ ^# ]]; then
+                if ! grep -Fxq "$line" "$PROJECT_ROOT/.gitignore"; then
+                    missing_entries+=("$line")
+                fi
+            fi
+        done < "$ide_gitignore"
+    done
+
+    if [ ${#missing_entries[@]} -gt 0 ]; then
+        echo -e "${YELLOW}⚠️  Missing ${#missing_entries[@]} .gitignore entries${NC}"
+        echo "   Adding missing entries..."
+
+        for entry in "${missing_entries[@]}"; do
+            echo "$entry" >> "$PROJECT_ROOT/.gitignore"
+        done
+
+        echo -e "${GREEN}✓${NC} Added missing .gitignore entries"
+    else
+        echo -e "${GREEN}✓${NC} All .gitignore entries are up to date"
+    fi
+
+    echo ""
+}
+
 # Update configuration and installed plugins
 update() {
     check_config
 
     echo -e "${BLUE}Updating unified AI configuration...${NC}"
+    echo ""
+
+    # Validate and sync .gitignore entries for configured IDEs
+    validate_and_sync_gitignore
 
     # Download update.sh from GitHub
     UPDATE_SCRIPT_URL="https://raw.githubusercontent.com/betagouv/agnostic-ai/main/update.sh"
