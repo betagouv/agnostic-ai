@@ -125,6 +125,63 @@ fi
 echo -e "${GREEN}✓ Base templates updated${NC}"
 echo ""
 
+# Run migrations
+echo -e "${BLUE}🔄 Running migrations...${NC}"
+
+# Get current version
+CURRENT_VERSION=""
+if [ -f ".ai/cli" ]; then
+    CURRENT_VERSION=$(grep '^VERSION=' .ai/cli | head -1 | cut -d'"' -f2)
+fi
+
+# Get new version
+NEW_VERSION=$(grep '^VERSION=' "$TEMP_DIR/templates/.ai/cli" | head -1 | cut -d'"' -f2)
+
+echo "  Current version: ${CURRENT_VERSION:-unknown}"
+echo "  New version: $NEW_VERSION"
+echo ""
+
+# Find and run migrations
+if [ -d "$TEMP_DIR/templates/migrations" ]; then
+    # Get list of migration scripts
+    MIGRATIONS=($(find "$TEMP_DIR/templates/migrations" -name "*.sh" -type f | sort -V))
+
+    if [ ${#MIGRATIONS[@]} -gt 0 ]; then
+        for migration in "${MIGRATIONS[@]}"; do
+            migration_version=$(basename "$migration" .sh)
+
+            # Skip if this migration is for a version we already have
+            if [ -n "$CURRENT_VERSION" ]; then
+                # Use sort -V to compare versions
+                if [ "$(printf '%s\n' "$CURRENT_VERSION" "$migration_version" | sort -V | head -1)" = "$migration_version" ] && [ "$CURRENT_VERSION" != "$migration_version" ]; then
+                    # migration_version < current_version, skip
+                    continue
+                fi
+
+                if [ "$migration_version" = "$CURRENT_VERSION" ]; then
+                    # Same version, skip
+                    continue
+                fi
+            fi
+
+            # Run migration
+            echo -e "${BLUE}  Running migration: $migration_version${NC}"
+            if bash "$migration"; then
+                echo ""
+            else
+                echo -e "${YELLOW}  ⚠️  Migration $migration_version failed (continuing)${NC}"
+                echo ""
+            fi
+        done
+    else
+        echo "  No migrations to run"
+        echo ""
+    fi
+else
+    echo "  No migrations folder found"
+    echo ""
+fi
+
 echo -e "${GREEN}✅ Update completed successfully!${NC}"
 echo ""
 echo -e "${BLUE}Next steps:${NC}"
