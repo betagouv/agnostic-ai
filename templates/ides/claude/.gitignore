@@ -2,4 +2,5 @@
 .claude/commands
 .claude/agents
 .claude/output-styles
+.claude/context
 .claude/settings.json
