@@ -38,4 +38,9 @@ dist/
 # =============================================================================
 .cursor/
 
+.tmp/
+
 .env.local
+
+# Local IDE configuration
+.ai/config.local.jsonc

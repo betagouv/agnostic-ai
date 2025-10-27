@@ -108,10 +108,7 @@ echo ""
 # Update base .ai templates
 echo -e "${BLUE}📝 Updating base templates...${NC}"
 
-# Update AGENTS.md if it hasn't been customized
-if [ -f "$TEMP_DIR/templates/.ai/AGENTS.md" ]; then
-    cp "$TEMP_DIR/templates/.ai/AGENTS.md" .ai/ 2>/dev/null || true
-fi
+# Note: We don't update .ai/AGENTS.md as it contains project-specific content
 
 # Update scripts
 if [ -d "$TEMP_DIR/templates/.ai/scripts" ]; then
