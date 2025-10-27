@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Version
+VERSION="1.1.0"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -15,6 +18,7 @@ PROJECT_ROOT="$(dirname "$AI_ROOT")"
 
 # Repository information
 REPO_URL="https://github.com/betagouv/agnostic-ai"
+VERSION_CHECK_FILE="$AI_ROOT/.version-check"
 
 # Detect if running from agnostic-ai repo or from a project
 # Check if we're in the agnostic-ai repo by looking for templates/plugins in parent directories
@@ -806,6 +810,48 @@ mcp_unuse() {
     echo ""
 }
 
+# Check for new version (cached, once per day)
+check_version_update() {
+    # Only check if not in dev mode
+    if [ -n "$PLUGINS_DIR" ]; then
+        return 0
+    fi
+
+    # Check if we should check (once per day)
+    if [ -f "$VERSION_CHECK_FILE" ]; then
+        local last_check=$(cat "$VERSION_CHECK_FILE")
+        local now=$(date +%s)
+        local day_ago=$((now - 86400))
+
+        if [ "$last_check" -gt "$day_ago" ]; then
+            # Checked recently, skip
+            return 0
+        fi
+    fi
+
+    # Fetch latest version from GitHub (timeout after 2 seconds)
+    local latest_version=$(curl -s --max-time 2 "https://raw.githubusercontent.com/betagouv/agnostic-ai/main/templates/.ai/cli" 2>/dev/null | grep '^VERSION=' | head -1 | cut -d'"' -f2)
+
+    # Save check timestamp
+    date +%s > "$VERSION_CHECK_FILE"
+
+    # Compare versions
+    if [ -n "$latest_version" ] && [ "$latest_version" != "$VERSION" ]; then
+        echo -e "${YELLOW}⚠️  New version available: $latest_version (current: $VERSION)${NC}"
+        echo "   Run '.ai/cli update' to upgrade"
+        echo ""
+    fi
+}
+
+# Show version
+show_version() {
+    echo "agnostic-ai CLI version $VERSION"
+    echo ""
+    echo "Repository: $REPO_URL"
+    echo "Local path: $AI_ROOT"
+    echo ""
+}
+
 # Show help
 show_help() {
     echo "agnostic-ai - Unified AI Configuration Tool"
@@ -822,9 +868,13 @@ show_help() {
     echo "  .ai/cli mcp use <server...>      Enable MCP server(s)"
     echo "  .ai/cli mcp unuse <server...>    Disable MCP server(s)"
     echo "  .ai/cli update                   Update configuration and plugins"
+    echo "  .ai/cli --version                Show version information"
     echo "  .ai/cli help                     Show this help"
     echo ""
 }
+
+# Check for updates (async, cached)
+check_version_update
 
 # Main command dispatcher
 case "${1:-}" in
@@ -874,6 +924,9 @@ case "${1:-}" in
         ;;
     update)
         update
+        ;;
+    --version|-v|version)
+        show_version
         ;;
     help|--help|-h)
         show_help

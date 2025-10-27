@@ -6,3 +6,6 @@
 
 # Local IDE configuration
 .ai/config.local.jsonc
+
+# Version check cache
+.ai/.version-check
