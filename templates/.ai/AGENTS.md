@@ -93,9 +93,39 @@ src/
 
 Custom slash commands are available in `.ai/commands/`. Check that folder for available automation.
 
+**Commands** are user-invoked shortcuts (e.g., `/core:migrate`, `/github:code-pr-create`):
+- Triggered explicitly by typing `/command-name`
+- Best for: Workflow shortcuts, utility scripts
+- Location: `.ai/commands/<plugin>/` or `.ai/commands/` (custom)
+
 ## 👥 AI Agents
 
 Specialized agents are configured in `.ai/agents/` for complex tasks like codebase exploration, deep search, etc.
+
+**Agents** are workflow orchestrators for multi-step processes:
+- Invoked via `@agent-name` mention or Task tool
+- Best for: Multi-step analysis, planning, orchestration
+- Location: `.ai/agents/<plugin>/` or `.ai/agents/` (custom)
+
+## 🎯 Skills
+
+Skills are **model-invoked** capabilities in `.ai/skills/` that AI assistants load automatically when relevant.
+
+**Skills** are auto-activated by AI based on task context:
+- No manual invocation - AI decides when to use them
+- Best for: Coding standards, domain expertise, specialized workflows
+- Location: `.ai/skills/<plugin>/` or `.ai/skills/` (custom)
+- Current support: Claude Code (full), Cursor (coming soon)
+
+### Skills vs Commands vs Agents
+
+| Feature | Skills | Commands | Agents |
+|---------|--------|----------|--------|
+| **Invocation** | Model-invoked (automatic) | User-invoked (`/command`) | Task tool or `@mention` |
+| **Purpose** | Domain knowledge, standards | Workflow shortcuts | Multi-step orchestration |
+| **When to use** | "I want AI to remember X" | "I need a shortcut for Y" | "Automate Z workflow" |
+
+Create Skills with `/core:skill-create`, Commands with `/core:command-create`, Agents with `/core:agent-create`.
 
 ---
 

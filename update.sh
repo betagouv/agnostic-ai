@@ -79,6 +79,7 @@ for plugin in "${PLUGINS[@]}"; do
     rm -rf ".ai/commands/$plugin" 2>/dev/null
     rm -rf ".ai/agents/$plugin" 2>/dev/null
     rm -rf ".ai/context/$plugin" 2>/dev/null
+    rm -rf ".ai/skills/$plugin" 2>/dev/null
 
     # Copy commands to .ai/commands/<plugin>/
     if [ -d "$TEMP_DIR/templates/plugins/$plugin/commands" ]; then
@@ -99,6 +100,13 @@ for plugin in "${PLUGINS[@]}"; do
         mkdir -p .ai/context
         cp -r "$TEMP_DIR/templates/plugins/$plugin/context" ".ai/context/$plugin"
         echo -e "${GREEN}✓${NC} Context → .ai/context/$plugin/"
+    fi
+
+    # Copy skills to .ai/skills/<plugin>/
+    if [ -d "$TEMP_DIR/templates/plugins/$plugin/skills" ]; then
+        mkdir -p .ai/skills
+        cp -r "$TEMP_DIR/templates/plugins/$plugin/skills" ".ai/skills/$plugin"
+        echo -e "${GREEN}✓${NC} Skills → .ai/skills/$plugin/"
     fi
 done
 

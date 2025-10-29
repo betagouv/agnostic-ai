@@ -156,6 +156,11 @@ create_symlinks() {
         ln -sf ../.ai/avatars .claude/output-styles
         echo -e "${GREEN}✓${NC} Linked .claude/output-styles/ → .ai/avatars/"
     fi
+
+    if [ -d ".ai/skills" ]; then
+        ln -sf ../.ai/skills .claude/skills
+        echo -e "${GREEN}✓${NC} Linked .claude/skills/ → .ai/skills/"
+    fi
 }
 
 copy_static_files() {

@@ -103,6 +103,10 @@ your-project/
 │   │   ├── core/                 # Core plugin
 │   │   ├── lang-node/            # Lang-node plugin
 │   │   └── my-context.mdc        # Custom context at root
+│   ├── skills/                   # Skills (plugins + custom)
+│   │   ├── core/                 # Core plugin
+│   │   └── my-skill/             # Custom skill
+│   │       └── SKILL.md
 │   └── avatars/                  # AI behavior profiles
 │       └── my-avatar.md          # Custom avatar
 │
@@ -111,6 +115,7 @@ your-project/
 │   ├── commands/                 # → .ai/commands/
 │   ├── agents/                   # → .ai/agents/
 │   ├── context/                  # → .ai/context/
+│   ├── skills/                   # → .ai/skills/
 │   └── output-styles/            # → .ai/avatars/
 │
 └── .cursor/                      # ❌ Generated (gitignored)
@@ -120,7 +125,8 @@ your-project/
     │   ├── lang-node/            # → .ai/context/lang-node/
     │   └── *.md                  # → .ai/context/*.md
     ├── commands/                 # → .ai/commands/
-    └── agents/                   # → .ai/agents/
+    ├── agents/                   # → .ai/agents/
+    └── skills/                   # → .ai/skills/ (future support)
 ```
 
 ## 🔌 Plugin System
@@ -352,9 +358,68 @@ Perform deep research on a topic
 
 Create a new AI personality/output style
 
+### `/core:skill-create`
+
+Create a new Skill (model-invoked capability)
+
 ### `/core:feature-create`
 
 Scaffold a new feature with EPCT methodology
+
+## 🎯 Skills, Commands, and Agents
+
+Agnostic AI provides three types of AI extensions, each serving different purposes:
+
+### Skills (Model-Invoked) 🧠
+
+**Auto-activated** by the AI when relevant to your task.
+
+```markdown
+Location: .ai/skills/
+When: "I want AI to automatically remember X"
+Best for: Coding standards, domain expertise, workflows
+Support: Claude Code (full), Cursor (coming soon)
+Create: /core:skill-create
+```
+
+**Example**: A "TypeScript Performance" Skill automatically loads when you're investigating TS performance issues.
+
+### Commands (User-Invoked) ⚡
+
+**Manually triggered** shortcuts for common workflows.
+
+```markdown
+Location: .ai/commands/
+When: "I need a shortcut for Y"
+Best for: Workflow automation, utility scripts
+Support: Claude Code, Cursor
+Create: /core:command-create
+```
+
+**Example**: `/github:code-pr-create` to create a pull request.
+
+### Agents (Orchestrators) 🤖
+
+**Multi-step workflows** for complex analysis and planning.
+
+```markdown
+Location: .ai/agents/
+When: "I need to automate Z process"
+Best for: Research, analysis, planning phases
+Support: Claude Code, Cursor
+Create: /core:agent-create
+```
+
+**Example**: `explore-codebase` agent to find relevant files.
+
+### Comparison Table
+
+| Feature | Skills | Commands | Agents |
+|---------|--------|----------|--------|
+| **Invocation** | Automatic (AI decides) | Manual (`/command`) | Task tool or `@mention` |
+| **Purpose** | Standards & knowledge | Quick actions | Complex workflows |
+| **Context** | Always available | On-demand | On-demand |
+| **Best for** | "Remember this" | "Do this shortcut" | "Orchestrate this" |
 
 ## 🔄 Daily Workflow
 

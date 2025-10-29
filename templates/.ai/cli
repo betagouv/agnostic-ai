@@ -180,6 +180,14 @@ add_plugin() {
         echo -e "${GREEN}✓${NC} Context → .ai/context/$plugin_name/"
     fi
 
+    # Copy skills to .ai/skills/<plugin-name>/
+    if [ -d "$plugins_dir/$plugin_name/skills" ]; then
+        mkdir -p .ai/skills
+        cp -r "$plugins_dir/$plugin_name/skills" ".ai/skills/$plugin_name"
+        local skill_count=$(find ".ai/skills/$plugin_name" -type d -name "*.md" -o -name "SKILL.md" | wc -l | tr -d ' ')
+        echo -e "${GREEN}✓${NC} Skills: $skill_count → .ai/skills/$plugin_name/"
+    fi
+
     # Update .ai/config.jsonc
     if command -v jq &> /dev/null; then
         # Strip comments, update with jq, then reconstruct with comments

@@ -159,6 +159,12 @@ if [ -d "$TEMP_DIR/templates/plugins/core/context" ]; then
     echo -e "${GREEN}✓${NC} Context → .ai/context/core/"
 fi
 
+if [ -d "$TEMP_DIR/templates/plugins/core/skills" ]; then
+    mkdir -p .ai/skills
+    cp -r "$TEMP_DIR/templates/plugins/core/skills" .ai/skills/core
+    echo -e "${GREEN}✓${NC} Skills → .ai/skills/core/"
+fi
+
 echo -e "${GREEN}✓ Core plugin installed${NC}"
 
 # Create .ai/config.jsonc

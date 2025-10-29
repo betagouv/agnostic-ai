@@ -183,6 +183,11 @@ create_symlinks() {
         ln -sf ../.ai/agents .cursor/agents
         echo -e "${GREEN}✓${NC} Linked .cursor/agents/ → .ai/agents/"
     fi
+
+    if [ -d ".ai/skills" ]; then
+        ln -sf ../.ai/skills .cursor/skills
+        echo -e "${GREEN}✓${NC} Linked .cursor/skills/ → .ai/skills/ (future support)"
+    fi
 }
 
 print_summary() {
